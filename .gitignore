@@ -141,5 +141,3 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
-
-untitled:plan-couchdbToPostgresql.prompt.md
