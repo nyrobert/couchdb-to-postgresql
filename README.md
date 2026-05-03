@@ -5,6 +5,16 @@ This sample app exposes a REST CRUD API for books, stores the canonical data in 
 - `dualwrite`: write each change to CouchDB and Postgres simultaneously
 - `cdc`: write only to CouchDB and replicate changes into Postgres with CouchDB `_changes`
 
+## Setup
+
+### Local development
+
+1. Copy the environment template:
+
+   ```bash
+   cp .env.example .env
+   ```
+
 ## Quick start
 
 1. Start Minikube with Podman driver:
