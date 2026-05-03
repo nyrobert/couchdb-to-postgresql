@@ -1,0 +1,20 @@
+{
+  "name": "couchdb-to-postgresql",
+  "version": "0.1.0",
+  "description": "Sample Node.js app for CouchDB to PostgreSQL migration with dual-write and CDC modes.",
+  "main": "src/app.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "NODE_ENV=development node src/app.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "express": "^4.18.4",
+    "nano": "^11.0.5",
+    "pg": "^8.11.2"
+  }
+}

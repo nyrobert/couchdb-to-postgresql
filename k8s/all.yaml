@@ -1,0 +1,140 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: couchdb-postgres
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: couchdb
+  namespace: couchdb-postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: couchdb
+  template:
+    metadata:
+      labels:
+        app: couchdb
+    spec:
+      containers:
+        - name: couchdb
+          image: couchdb:3.3.1
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5984
+          env:
+            - name: COUCHDB_USER
+              value: admin
+            - name: COUCHDB_PASSWORD
+              value: password
+          volumeMounts:
+            - name: couchdb-data
+              mountPath: /opt/couchdb/data
+      volumes:
+        - name: couchdb-data
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: couchdb
+  namespace: couchdb-postgres
+spec:
+  selector:
+    app: couchdb
+  ports:
+    - port: 5984
+      targetPort: 5984
+      protocol: TCP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+  namespace: couchdb-postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:15
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_PASSWORD
+              value: password
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: postgres-data
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: couchdb-postgres
+spec:
+  selector:
+    app: postgres
+  ports:
+    - port: 5432
+      targetPort: 5432
+      protocol: TCP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: couchdb-to-postgresql-app
+  namespace: couchdb-postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: couchdb-to-postgresql-app
+  template:
+    metadata:
+      labels:
+        app: couchdb-to-postgresql-app
+    spec:
+      containers:
+        - name: app
+          image: couchdb-to-postgresql:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+          env:
+            - name: PORT
+              value: "3000"
+            - name: COUCHDB_URL
+              value: http://admin:password@couchdb:5984
+            - name: COUCHDB_DB
+              value: books
+            - name: POSTGRES_URL
+              value: postgresql://postgres:password@postgres:5432/postgres
+            - name: MIGRATION_STRATEGY
+              value: dualwrite
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: couchdb-to-postgresql-app
+  namespace: couchdb-postgres
+spec:
+  selector:
+    app: couchdb-to-postgresql-app
+  ports:
+    - port: 3000
+      targetPort: 3000
+      protocol: TCP
